@@ -11,7 +11,8 @@ export default class RestaurantList extends Component {
             restaurants: [],
             offset: 0,
             count: 0,
-            _isBusy: false
+            _isBusy: false,
+            _isEmpty: false,
         }
     }
 
@@ -55,21 +56,28 @@ export default class RestaurantList extends Component {
 
     handleSearch = e => {
         const name = e.target.value
+        console.log(name)
 
-        if (name) {
+        if (name != '') {
             getRestaurantsByName(name)
                 .then(res =>  {
                     this.setState({restaurants: res.data.data})
+                    
+                    if (!res.data.data.length) {
+                        this.setState({_isBusy: true, _isEmpty: true})
+                    } else {
+                        this.setState({_isBusy: false, _isEmpty: false})
+                    }
                 })
         } else {
-            getRestaurants(0)
+            this.getRestaurants(0)
         }
 
 
     }
 
     render() {
-        const { restaurants, offset, _isBusy } = this.state
+        const { restaurants, offset, _isBusy, _isEmpty } = this.state
 
         return (
             <div className="list-of-restaurant">
@@ -103,7 +111,9 @@ export default class RestaurantList extends Component {
                     </div>
                 </div>
                 <div className="lists">
-                    {!restaurants.length ? 
+                    {_isEmpty ? 
+                    (<h3>No Search results</h3>)
+                    : !restaurants.length ?
                     (<h3>Loading...</h3>)
                     : 
                     restaurants.map((data, i) => 
