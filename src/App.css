@@ -7,6 +7,17 @@
   pointer-events: none;
 }
 
+input[type=text] {
+  width: 100%;
+  padding: 0.5em;
+  border-radius: 3px;
+  border: 0.5px solid #e6e6e6;
+}
+
+::placeholder {
+  color: #999999;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
