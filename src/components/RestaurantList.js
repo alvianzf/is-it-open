@@ -66,7 +66,23 @@ export default class RestaurantList extends Component {
                     <input type="text" placeholder="search here..." />
                     </div>
                 </div>
-
+                <div className="filters">
+                    What's open on:
+                    <div>
+                        time: <input type="time" />
+                    </div>
+                    <div> day: 
+                        <select>
+                            <option value="Mon">Monday</option>
+                            <option value="Tue">Tuesday</option>
+                            <option value="Wed">Wednesday</option>
+                            <option value="Thu">Thursday</option>
+                            <option value="Fri">Friday</option>
+                            <option value="Sat">Saturday</option>
+                            <option value="Sun">Sunday</option>
+                        </select>
+                    </div>
+                </div>
                 <div className="lists">
                     {!restaurants.length ? 
                     (<h3>Loading...</h3>)
@@ -84,6 +100,11 @@ export default class RestaurantList extends Component {
                 </div>
                 <style>
                     {`
+                        .filters {
+                            display: flex !important;
+                            width: 50%;
+                            justify-content: space-between;
+                        }
                         .buttons {
                             margin-top: 1em;
                             display: flex !important;
