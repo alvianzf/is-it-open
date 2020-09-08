@@ -11,6 +11,7 @@ export default class RestaurantList extends Component {
             restaurants: [],
             offset: 0,
             count: 0,
+            _isBusy: false
         }
     }
 
@@ -24,10 +25,12 @@ export default class RestaurantList extends Component {
     }
 
     getRestaurants(offset) {
+        this.setState({_isBusy: true})
         getRestaurants(5, offset).then(res=> {
             this.setState({
                 restaurants: res.data.data,
-                offset
+                offset,
+                _isBusy: false
             })
         }).catch(err=> console.log(err))
     }
@@ -50,7 +53,7 @@ export default class RestaurantList extends Component {
         }
     }
     render() {
-        const { restaurants, offset } = this.state
+        const { restaurants, offset, _isBusy } = this.state
 
         return (
             <div className="list-of-restaurant">
@@ -75,9 +78,9 @@ export default class RestaurantList extends Component {
                 </div>
                 <div className="buttons">
                         
-                <div className={classnames({"btn": offset > 0}, {
+                <div className={classnames({"btn": offset > 0}, {"disabled": _isBusy}, {
                     "disabled": offset == 0
-                })} onClick={() => this.handlePrev()}>Prev</div><div className="btn" onClick={() => this.handleNext()}>Next</div>
+                })} onClick={() => this.handlePrev()}>Prev</div><div className={classnames( {"disabled": _isBusy}, {"btn": !_isBusy})} onClick={() => this.handleNext()}>Next</div>
                 </div>
                 <style>
                     {`
