@@ -16,3 +16,13 @@ export const getRestaurants = (limit, offset) => {
         url: `${baseURL}restaurant?limit=${limit}&offset=${offset}`
     })
 }
+
+export const getRestaurantsByName = (name) => {
+    return axios({
+        method : 'GET',
+        headers : {
+            'Accept' : 'application/json'
+        },
+        url: `${baseURL}restaurant/name/${name}?limit=5`
+    })
+}

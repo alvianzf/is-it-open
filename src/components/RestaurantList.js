@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ListCards from './ListCards'
-import {getRestaurants} from "../utils/api"
+import {getRestaurants, getRestaurantsByName} from "../utils/api"
 import classnames from "classnames"
 
 export default class RestaurantList extends Component {
@@ -16,7 +16,7 @@ export default class RestaurantList extends Component {
     }
 
     componentDidMount () {
-        getRestaurants(5,0).then(res=> {
+        getRestaurants(12,0).then(res=> {
             this.setState({
                 restaurants: res.data.data,
                 count: res.data.count
@@ -26,7 +26,7 @@ export default class RestaurantList extends Component {
 
     getRestaurants(offset) {
         this.setState({_isBusy: true})
-        getRestaurants(5, offset).then(res=> {
+        getRestaurants(12, offset).then(res=> {
             this.setState({
                 restaurants: res.data.data,
                 offset,
@@ -52,6 +52,22 @@ export default class RestaurantList extends Component {
             this.getRestaurants(offset)
         }
     }
+
+    handleSearch = e => {
+        const name = e.target.value
+
+        if (name) {
+            getRestaurantsByName(name)
+                .then(res =>  {
+                    this.setState({restaurants: res.data.data})
+                })
+        } else {
+            getRestaurants(0)
+        }
+
+
+    }
+
     render() {
         const { restaurants, offset, _isBusy } = this.state
 
@@ -63,16 +79,16 @@ export default class RestaurantList extends Component {
                 <div className="search">
                     <i className="fa fa-search search-icon"></i>
                     <div style={{width: "90%"}}>
-                    <input type="text" placeholder="search here..." />
+                    <input type="text" placeholder="search here..." onChange={(e) => this.handleSearch(e) } />
                     </div>
                 </div>
                 <div className="filters">
                     What's open on:
                     <div>
-                        time: <input type="time" />
+                        time: <input type="time" className="filter"/>
                     </div>
                     <div> day: 
-                        <select>
+                        <select className="filter">
                             <option value="Mon">Monday</option>
                             <option value="Tue">Tuesday</option>
                             <option value="Wed">Wednesday</option>
@@ -81,6 +97,9 @@ export default class RestaurantList extends Component {
                             <option value="Sat">Saturday</option>
                             <option value="Sun">Sunday</option>
                         </select>
+                    </div>
+                    <div>
+                        <button className="filter">Filter</button>
                     </div>
                 </div>
                 <div className="lists">
@@ -99,11 +118,14 @@ export default class RestaurantList extends Component {
                 })} onClick={() => this.handlePrev()}>Prev</div><div className={classnames( {"disabled": _isBusy}, {"btn": !_isBusy})} onClick={() => this.handleNext()}>Next</div>
                 </div>
                 <style>
-                    {`
+                    {`  .filter {
+                            padding: 0.5em;
+                        }
                         .filters {
                             display: flex !important;
                             width: 50%;
-                            justify-content: space-between;
+                            justify-content: space-around;
+                            flex-wrap: wrap;
                         }
                         .buttons {
                             margin-top: 1em;
@@ -136,7 +158,8 @@ export default class RestaurantList extends Component {
                         .lists {
                             display: flex !important;
                             margin-top: 2em;
-                            justify-content: space-between;
+                            justify-content: flex-start;
+                            flex-wrap: wrap;
                         }
                         .list-of-restaurant {
                             text-align: left;

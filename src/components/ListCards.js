@@ -26,7 +26,11 @@ export default class ListCards extends Component {
                 </div>
                 <style>
                     {`
+                        .card-item:hover {
+                            background: #e6e6e6;
+                        }
                         .card-item {
+                            margin: 2em 2em 0 0;
                             width: 200px;
                             padding: 1em;
                             border: 1px solid #999999;
