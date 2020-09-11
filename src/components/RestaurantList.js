@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ListCards from './ListCards'
-import {getRestaurants, getRestaurantsByName} from "../utils/api"
+import {getRestaurants, getRestaurantsByName, getRestaurantsByTime} from "../utils/api"
 import classnames from "classnames"
 
 export default class RestaurantList extends Component {
@@ -13,6 +13,8 @@ export default class RestaurantList extends Component {
             count: 0,
             _isBusy: false,
             _isEmpty: false,
+            seconds: 0,
+            day: null
         }
     }
 
@@ -72,8 +74,39 @@ export default class RestaurantList extends Component {
         } else {
             this.getRestaurants(0)
         }
+    }
 
+    onTimeChange = e => {
+        this.setState({ _isBusy: true})
+        const time= e.target.value
 
+        const parts = time.match(/(\d+):(\d+)/)
+        const hours = Number(parts[1]) * 60 * 60
+        const minutes = Number(parts[2]) * 60
+
+        const seconds = hours + minutes
+
+        this.setState({ seconds})
+    }
+
+    onDayChange = e => {
+        this.setState({ _isBusy: true})
+        const day= e.target.value
+
+        day = day.substring(0, 3)
+
+        this.setState({day})
+
+    }
+
+    filterBy = () => {
+        const {seconds, day} = this.state
+        getRestaurantsByTime(seconds, day).then(res => {
+            this.setState({
+                restaurants: res.data.data,
+                _isBusy: false
+            })
+        })
     }
 
     render() {
@@ -82,7 +115,7 @@ export default class RestaurantList extends Component {
         return (
             <div className="list-of-restaurant">
                 <div className="title">
-                    <strong>List of Restaurants</strong>
+                    <strong>What's open on:</strong>
                 </div>
                 <div className="search">
                     <i className="fa fa-search search-icon"></i>
@@ -91,12 +124,13 @@ export default class RestaurantList extends Component {
                     </div>
                 </div>
                 <div className="filters">
-                    What's open on:
+                <form>
                     <div>
-                        time: <input type="time" className="filter"/>
+                        <input type="time" className="filter" required onChange={(e) => this.onTimeChange(e)}/>
                     </div>
-                    <div> day: 
+                    <div>
                         <select className="filter">
+                            <option value="" disabled selected>Select Day</option>
                             <option value="Mon">Monday</option>
                             <option value="Tue">Tuesday</option>
                             <option value="Wed">Wednesday</option>
@@ -107,8 +141,10 @@ export default class RestaurantList extends Component {
                         </select>
                     </div>
                     <div>
-                        <button className="filter">Filter</button>
+                        <button type="submit" className="filter btn-filter">Filter</button>
                     </div>
+                </form>
+                        <button className="btn-reset" onClick={() => this.getRestaurants(0)}>Reset</button>
                 </div>
                 <div className="lists">
                     {_isEmpty ? 
@@ -131,11 +167,32 @@ export default class RestaurantList extends Component {
                     {`  .filter {
                             padding: 0.5em;
                         }
+                        .btn-filter {
+                            border: none;
+                            padding: 1em 1.5em;
+                            cursor: pointer;
+                        }
+                        .btn-filter:hover {
+                            background: #e6e6e6;
+                        }
+                        .btn-reset {
+                            background: yellow;
+                            border: none;
+                            padding: 1em 1.5em;
+                            cursor: pointer;
+                        }
+                        .btn-reset:hover {
+                            background: #e6e6e6;
+                        }
                         .filters {
                             display: flex !important;
                             width: 50%;
-                            justify-content: space-around;
+                            justify-content: flex-start;
                             flex-wrap: wrap;
+                            margin-left: 4em;
+                        }
+                        .filters div {
+                            margin-right: 2em;
                         }
                         .buttons {
                             margin-top: 1em;
@@ -168,7 +225,7 @@ export default class RestaurantList extends Component {
                         .lists {
                             display: flex !important;
                             margin-top: 2em;
-                            justify-content: flex-start;
+                            justify-content: center;
                             flex-wrap: wrap;
                         }
                         .list-of-restaurant {

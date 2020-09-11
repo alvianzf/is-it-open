@@ -26,3 +26,13 @@ export const getRestaurantsByName = (name) => {
         url: `${baseURL}restaurant/name/${name}?limit=5`
     })
 }
+
+export const getRestaurantsByTime = (time, day) => {
+    return axios({
+        method : 'GET',
+        headers : {
+            'Accept' : 'application/json'
+        },
+        url: `${baseURL}restaurant/time/${time}?day=${day}`
+    })
+}
