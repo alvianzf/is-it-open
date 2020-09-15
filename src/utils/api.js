@@ -27,12 +27,22 @@ export const getRestaurantsByName = (name) => {
     })
 }
 
-export const getRestaurantsByTime = (time, day) => {
+export const getRestaurantsByTime = (time, day = null, page) => {
     return axios({
         method : 'GET',
         headers : {
             'Accept' : 'application/json'
         },
-        url: `${baseURL}restaurant/time/${time}?day=${day}`
+        url: `${baseURL}restaurant/time/${time}?page=${page}${day ? "&day=" + day : "" }?`
+    })
+}
+
+export const deleteRestaurant = _id => {
+    return axios({
+        method: 'DELETE',
+        headers: {
+            'Accept' : 'application/json'
+        },
+        url: `${baseURL}restaurant/${_id}`
     })
 }

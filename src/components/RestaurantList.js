@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import ListCards from './ListCards'
 import {getRestaurants, getRestaurantsByName, getRestaurantsByTime} from "../utils/api"
+import { deleteRestaurant } from "../utils/api"
 import { css } from '@emotion/core'
 import DotLoader from "react-spinners/DotLoader"
 import classnames from "classnames"
@@ -12,10 +13,12 @@ export default class RestaurantList extends Component {
         this.state = {
             restaurants: [],
             offset: 0,
+            page: 1,
             count: 0,
             _isBusy: false,
             _isEmpty: false,
-            seconds: 0,
+            seconds: null,
+            time: '--:--',
             search: '',
             day: null
         }
@@ -30,6 +33,20 @@ export default class RestaurantList extends Component {
         }).catch(err=> console.log(err))
     }
 
+    getRestaurantsByTime() {
+        this.setState({_isBusy: true})
+        const { seconds, day, page } = this.state
+        getRestaurantsByTime(seconds, day, page).then(res=> {
+            const _isEmpty = res.data.data ? false : true
+            this.setState({
+                restaurants: res.data.data,
+                page,
+                _isBusy: false,
+                _isEmpty
+            })
+        }).catch(err=> console.log(err))
+    }
+
     getRestaurants(offset = 0) {
         this.setState({_isBusy: true})
         getRestaurants(12, offset).then(res=> {
@@ -38,21 +55,29 @@ export default class RestaurantList extends Component {
                 restaurants: res.data.data,
                 offset,
                 _isBusy: false,
-                _isEmpty
+                _isEmpty,
+                seconds: null
             })
         }).catch(err=> console.log(err))
     }
 
     resetList = () => {
-        this.setState({search: ''})
+        this.setState({search: '', time: "--:--", day: '', seconds: null })
         this.getRestaurants()
     }
 
     handleNext () {
-        let { restaurant, offset, count } = this.state
+        let { restaurant, offset, seconds, page, day } = this.state
         offset = offset + 5
+        page = page + 1
 
-        this.getRestaurants(offset)
+        if (seconds > 0) {
+            console.log(page)
+            this.setState({page: page})
+            this.getRestaurantsByTime()
+        } else {
+            this.getRestaurants(offset)
+        }
 
     }
 
@@ -90,37 +115,62 @@ export default class RestaurantList extends Component {
         this.setState({ _isBusy: true})
         const time= e.target.value
 
+
         const parts = time.match(/(\d+):(\d+)/)
         const hours = Number(parts[1]) * 60 * 60
         const minutes = Number(parts[2]) * 60
 
         const seconds = hours + minutes
 
+        console.log(seconds)
+
         this.setState({ seconds})
     }
 
     onDayChange = e => {
         this.setState({ _isBusy: true})
-        const day= e.target.value
-
+        let day= e.target.value
         day = day.substring(0, 3)
 
         this.setState({day})
 
     }
 
-    filterBy = () => {
+    filterBy = (e) => {
+        e.preventDefault()
         const {seconds, day} = this.state
-        getRestaurantsByTime(seconds, day).then(res => {
-            this.setState({
-                restaurants: res.data.data,
-                _isBusy: false,
+
+        this.setState({restaurants: [], _isBusy: true, page: 1})
+
+        if (seconds !== null) {
+            getRestaurantsByTime(seconds, day, 1).then(res => {
+                this.setState({
+                    restaurants: res.data.data,
+                    _isBusy: false,
+                })
             })
-        })
+        } else {
+            alert ("Insert time")
+        }
+    }
+
+    deleteCard = _id => {
+        let {restaurants} = this.state
+        const index = restaurants.indexOf(restaurants.find(_ => _._id == _id))
+        restaurants.splice(index, 1)
+        var r = window.confirm("Are you sure you want to delete?")
+        if (r) {
+            deleteRestaurant(_id).then(res => {
+                alert("Deleted")
+                this.setState({restaurants})
+            }).catch(err => {
+                alert("Failed")
+            })
+        }
     }
 
     render() {
-        const { restaurants, offset, _isBusy, _isEmpty, search } = this.state
+        const { restaurants, offset, _isBusy, _isEmpty, search, day, time } = this.state
 
         return (
             <div className="list-of-restaurant">
@@ -136,10 +186,10 @@ export default class RestaurantList extends Component {
                 <div className="filters">
                 <form>
                     <div>
-                        <input type="time" className="filter" required onChange={(e) => this.onTimeChange(e)}/>
+                        <input type="time" className="filter" defaultValue={time} required onChange={(e) => this.onTimeChange(e)}/>
                     </div>
                     <div>
-                        <select className="filter">
+                        <select className="filter" defaultValue={day} value={day} onChange={(e) => this.onDayChange(e)}>
                             <option value="" disabled selected>Select Day</option>
                             <option value="Mon">Monday</option>
                             <option value="Tue">Tuesday</option>
@@ -151,7 +201,7 @@ export default class RestaurantList extends Component {
                         </select>
                     </div>
                     <div>
-                        <button type="submit" className="filter btn-filter">Filter</button>
+                        <button type="submit" className="filter btn-filter" onClick={(e) => this.filterBy(e)}>Filter</button>
                     </div>
                 </form>
                         <button className="btn-reset" onClick={() => this.resetList()}>Reset</button>
@@ -163,7 +213,7 @@ export default class RestaurantList extends Component {
                     (<DotLoader size={70} color={"#c7ffd6"}/>)
                     : 
                     restaurants.map((data, i) => 
-                        <ListCards name={data.name} time={data.time}/>
+                        <ListCards _id={data._id} name={data.name} time={data.time} deleteCard={(_id) => this.deleteCard(_id)}/>
                         
                     )}
                 </div>

@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 
 export default class ListCards extends Component {
+    
     render() {
-        const {name, time} = this.props
+        const {_id, name, time, deleteCard} = this.props
+        
 
         const changeToString = (time) => {
            const hours = time / 60 /60
@@ -12,6 +14,9 @@ export default class ListCards extends Component {
         }
         return (
             <div className="card-item">
+                <div className="button-overlay">
+                    <button className="btn btn-delete" title="Delete" onClick={() => deleteCard(_id)}><i className="fa fa-trash"></i></button>
+                </div>
 
                 <div className="card-title">
                 {name}
@@ -26,10 +31,27 @@ export default class ListCards extends Component {
                 </div>
                 <style>
                     {`
-                        .card-item:hover {
-                            background: #e6e6e6;
+                        .card-item:hover .button-overlay{
+                            display: flex !important;
+                        }
+                        .btn {
+                            padding: 1em;
+                            background: red;
+                            opacity: 1 !important;
+                        }
+                        .button-overlay {
+                            position: absolute;
+                            top: 0;
+                            right: 0;
+                            width: 100%;
+                            height: 100%;
+                            display:none !important;
+                            align-items: flex-end;
+                            justify-content: flex-end;
+                            border-radius: 10px;
                         }
                         .card-item {
+                            position: relative;
                             margin: 2em 2em 0 0;
                             width: 200px;
                             padding: 1em;
