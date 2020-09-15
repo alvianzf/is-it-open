@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import ListCards from './ListCards'
 import {getRestaurants, getRestaurantsByName, getRestaurantsByTime} from "../utils/api"
+import { css } from "@emotion/core";
 import classnames from "classnames"
+import DotLoader from "react-spinners/DotLoader";
 
 export default class RestaurantList extends Component {
     constructor(props) {
@@ -150,7 +152,13 @@ export default class RestaurantList extends Component {
                     {_isEmpty ? 
                     (<h3>No Search results</h3>)
                     : !restaurants.length ?
-                    (<h3>Loading...</h3>)
+                    (<DotLoader
+                        size={50}
+                        color={"#c7ffd6"}
+                        loading={true}
+                      />)
+
+                    // (<h3>Loading...</h3>)
                     : 
                     restaurants.map((data, i) => 
                         <ListCards name={data.name} time={data.time}/>
