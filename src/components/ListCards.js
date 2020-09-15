@@ -15,6 +15,8 @@ export default class ListCards extends Component {
         return (
             <div className="card-item">
                 <div className="button-overlay">
+                <button className="btn btn-favourite" title="Favourite" ><i className="fa fa-star"></i></button>
+                <button className="btn btn-edit" title="Edit" ><i className="fa fa-pencil"></i></button>
                     <button className="btn btn-delete" title="Delete" onClick={() => deleteCard(_id)}><i className="fa fa-trash"></i></button>
                 </div>
 
@@ -34,11 +36,27 @@ export default class ListCards extends Component {
                         .card-item:hover .button-overlay{
                             display: flex !important;
                         }
+                        .btn-edit {
+                            background: gray;
+                            color: #fff;
+                            margin-right: 0.5em;
+                        }
                         .btn-delete {
                             color: #fff;
-                            padding: 1em;
+                            // padding: 1em;
+                            width: 40px;
                             background: red;
                             opacity: 1 !important;
+                            margin-right: 0.5em;
+                            margin-bottom: 0.5em;
+                        }
+                        .btn-favourite {
+                            color: #fff;
+                            // padding: 1em;
+                            width: 40px;
+                            background: #a2d7fa;
+                            opacity: 1 !important;
+                            margin-right: 0.5em;
                         }
                         .button-overlay {
                             position: absolute;
@@ -50,6 +68,7 @@ export default class ListCards extends Component {
                             align-items: flex-end;
                             justify-content: flex-end;
                             border-radius: 10px;
+                            flex-direction: column;
                         }
                         .card-item {
                             position: relative;
