@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import ListCards from './ListCards'
 import {getRestaurants, getRestaurantsByName, getRestaurantsByTime} from "../utils/api"
-import { css } from "@emotion/core";
+import { css } from '@emotion/core'
+import DotLoader from "react-spinners/DotLoader"
 import classnames from "classnames"
-import DotLoader from "react-spinners/DotLoader";
 
 export default class RestaurantList extends Component {
     constructor(props) {
@@ -16,6 +16,7 @@ export default class RestaurantList extends Component {
             _isBusy: false,
             _isEmpty: false,
             seconds: 0,
+            search: '',
             day: null
         }
     }
@@ -29,15 +30,22 @@ export default class RestaurantList extends Component {
         }).catch(err=> console.log(err))
     }
 
-    getRestaurants(offset) {
+    getRestaurants(offset = 0) {
         this.setState({_isBusy: true})
         getRestaurants(12, offset).then(res=> {
+            const _isEmpty = res.data.data ? false : true
             this.setState({
                 restaurants: res.data.data,
                 offset,
-                _isBusy: false
+                _isBusy: false,
+                _isEmpty
             })
         }).catch(err=> console.log(err))
+    }
+
+    resetList = () => {
+        this.setState({search: ''})
+        this.getRestaurants()
     }
 
     handleNext () {
@@ -60,7 +68,7 @@ export default class RestaurantList extends Component {
 
     handleSearch = e => {
         const name = e.target.value
-        console.log(name)
+        this.setState({search: name})
 
         if (name != '') {
             getRestaurantsByName(name)
@@ -106,13 +114,13 @@ export default class RestaurantList extends Component {
         getRestaurantsByTime(seconds, day).then(res => {
             this.setState({
                 restaurants: res.data.data,
-                _isBusy: false
+                _isBusy: false,
             })
         })
     }
 
     render() {
-        const { restaurants, offset, _isBusy, _isEmpty } = this.state
+        const { restaurants, offset, _isBusy, _isEmpty, search } = this.state
 
         return (
             <div className="list-of-restaurant">
@@ -122,7 +130,7 @@ export default class RestaurantList extends Component {
                 <div className="search">
                     <i className="fa fa-search search-icon"></i>
                     <div style={{width: "90%"}}>
-                    <input type="text" placeholder="search here..." onChange={(e) => this.handleSearch(e) } />
+                    <input type="text" placeholder="search here..." defaultValue={search} value={search} onChange={(e) => this.handleSearch(e) } />
                     </div>
                 </div>
                 <div className="filters">
@@ -146,19 +154,13 @@ export default class RestaurantList extends Component {
                         <button type="submit" className="filter btn-filter">Filter</button>
                     </div>
                 </form>
-                        <button className="btn-reset" onClick={() => this.getRestaurants(0)}>Reset</button>
+                        <button className="btn-reset" onClick={() => this.resetList()}>Reset</button>
                 </div>
                 <div className="lists">
                     {_isEmpty ? 
                     (<h3>No Search results</h3>)
                     : !restaurants.length ?
-                    (<DotLoader
-                        size={50}
-                        color={"#c7ffd6"}
-                        loading={true}
-                      />)
-
-                    // (<h3>Loading...</h3>)
+                    (<DotLoader size={70} color={"#c7ffd6"}/>)
                     : 
                     restaurants.map((data, i) => 
                         <ListCards name={data.name} time={data.time}/>
