@@ -34,7 +34,8 @@ export default class ListCards extends Component {
                         .card-item:hover .button-overlay{
                             display: flex !important;
                         }
-                        .btn {
+                        .btn-delete {
+                            color: #fff;
                             padding: 1em;
                             background: red;
                             opacity: 1 !important;
